@@ -1,0 +1,12 @@
+name: 'segment'
+pretrain_model: 'esm150'
+scales: 2
+segment_lengths:
+  - 8
+  - 4
+  - 2
+kernel_size: 5
+attention_range: 5
+embed_dim: 640
+num_heads: 8
+num_layers: 2
