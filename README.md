@@ -1,4 +1,4 @@
-# Model enzyme temperature stability from sequence segment perspective
+# Modeling enzyme temperature stability from sequence segment perspective
 
 ![Architecture](segment_transformer.png)
 
