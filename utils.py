@@ -154,8 +154,6 @@ def metrics_cls(eval_pred):
 
 def metrics_reg(eval_pred):
     predictions, targets = eval_pred
-    # R? (Coefficient of Determination)
-    r2 = r2_score(targets, predictions)
     # Pearson Correlation Coefficient
     pearson_corr = np.corrcoef(predictions, targets)[0, 1]
     # Spearman Correlation Coefficient
@@ -166,7 +164,6 @@ def metrics_reg(eval_pred):
     rmse = np.sqrt(mean_squared_error(targets, predictions))
 
     return {
-        'R2': float(r2),
         'Pearson Correlation': float(pearson_corr),
         'Spearman Correlation': float(spearman_corr),
         'MAE': float(mae),
@@ -420,3 +417,4 @@ def load_metrics(name):
         return metrics_range
     else:
         raise ValueError('Invalid dataset name')
+
