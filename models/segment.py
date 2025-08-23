@@ -102,10 +102,37 @@ class MultiScalePooling(nn.Module):
         return pooled_outputs
 
 
+class RDBlock(nn.Module):
+    '''A dense layer with residual connection'''
+
+    def __init__(self, dim):
+        super(RDBlock, self).__init__()
+        self.dense = nn.Linear(dim, dim)
+
+    def forward(self, x):
+        x0 = x
+        x = F.leaky_relu(self.dense(x))
+        x = x0 + x
+        return x
+
+class MLPBlock(nn.Module):
+    def __init__(self, input_dim):
+        super(MLPBlock, self).__init__()
+        self.layers = nn.ModuleList([RDBlock(input_dim) for _ in range(1)])
+        self.fc = nn.Linear(input_dim, 1)
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        x = self.fc(x)
+        return x
+
+
 class MergeRegressionHead(nn.Module):
     def __init__(self, scales, input_dim):
         super().__init__()
-        self.regression_layers = nn.ModuleList([nn.Linear(input_dim, 1) for _ in range(scales+1)])
+        self.regression_layers = nn.ModuleList([MLPBlock(input_dim) for _ in range(scales+1)])
+        # self.regression_layers = nn.ModuleList([nn.Linear(input_dim, 1) for _ in range(scales + 1)])
 
     def forward(self, x):
         multi_scale_pred = [layer(_) for _, layer in zip(x, self.regression_layers)]
@@ -156,7 +183,8 @@ class Model(nn.Module):
                                attn_weights=attn_weights,
                                hidden_state_conv=hidden_state_conv,
                                hidden_state_attention=hidden_state_attention,
-                               hidden_state_pooling=hidden_state_pooling)
+                               hidden_state_pooling=hidden_state_pooling,
+                               hidden_state=hidden_state_pooling)
 
         loss = None
         if labels is not None:
